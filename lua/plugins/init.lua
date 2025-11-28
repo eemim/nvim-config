@@ -10,4 +10,7 @@ return {
   { import = "plugins.which-key" },
   { import = "plugins.windwp" },
   { import = "plugins.toggleterm" },
+  { import = "plugins.venv-selector" },
+  { import = "plugins.dashboard-nvim.lua" },
+  { import = "plugins.comment" },
 }
