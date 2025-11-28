@@ -37,7 +37,7 @@
 
 I think we needed to install ripgrep, don't remember anymore:
 
-        sudo apt install ripgrep
+        sudo apt install ripgrep and fd
 
 ## For formatters
 

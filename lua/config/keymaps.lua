@@ -1,8 +1,27 @@
 local map = vim.keymap.set
 
+-- Buffers
 map("n", "<leader>w", ":w<CR>", { desc = "Write buffer" })
-map("n", "<leader>q", ":q<CR>")
 map("n", "<leader>x", ":bd<CR>", { desc = "Delete buffer" })
+map("n", "<S-Tab>", ":bprevious<CR>", { desc = "Previous buffer" })
+map("n", "<Tab>", ":bnext<CR>", { desc = "Next buffer" })
+local function smart_buffer_delete()
+	local bufnr = vim.api.nvim_get_current_buf()
+
+	-- If it's the last buffer: just wipe it and leave nvim open
+	if #vim.fn.getbufinfo({ buflisted = 1 }) == 1 then
+		vim.cmd("bd")
+		return
+	end
+
+	-- Switch to the previous buffer
+	vim.cmd("bp")
+
+	-- Now delete the original buffer
+	vim.cmd("bd " .. bufnr)
+end
+
+vim.keymap.set("n", "<leader>x", smart_buffer_delete, { desc = "Delete buffer safely" })
 
 -- Better window navigation (like NvChad)
 map("n", "<C-h>", "<C-w>h")
