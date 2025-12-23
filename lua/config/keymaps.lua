@@ -35,9 +35,10 @@ map("n", "<leader>fg", require("telescope.builtin").live_grep, { desc = "Live Gr
 map("n", "<leader>fb", require("telescope.builtin").buffers, { desc = "Buffers" })
 map("n", "<leader>fh", require("telescope.builtin").help_tags, { desc = "Help Tags" })
 map("n", "<leader>gs", require("telescope.builtin").git_status, { desc = "Git Status" })
+-- <leader>ft mapping in ./plugins/telescope.lua
 
--- NvimTree keymaps
-map("n", "<C-n>", ":NvimTreeToggle<CR>", {})
+-- Neo-tree keymaps
+map("n", "<C-n>", ":Neotree toggle<CR>", { noremap = true, silent = true })
 
 -- Formatting
 map("n", "<leader>f", function()
@@ -51,3 +52,10 @@ map("n", "<leader>th", ":KanagawaCompile<CR>", { desc = "Kanagawa compiled" })
 
 -- Dashboard
 map("n", "<leader>db", ":Dashboard<CR>", { desc = "Dashboard" })
+
+-- Oil
+-- vim.keymap.set("n", "<leader>e", "<CMD>Oil<CR>", { desc = "Open Oil" })
+
+-- ==================================================
+-- NOTE! Terminal keymaps in ./plugins/toggleterm.lua
+-- ==================================================

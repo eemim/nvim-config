@@ -4,6 +4,8 @@ local servers = {
 	"marksman",
 	"bashls",
 	"ts_ls",
+  "ruby_lsp",
+  "gopls",
 }
 
 -- Load Mason LSPConfig integration

@@ -1,74 +1,145 @@
 return {
-	{
-		"akinsho/toggleterm.nvim",
-		version = "*",
-		config = function()
-			local toggleterm = require("toggleterm")
-			toggleterm.setup({
-				size = function(term)
-					if term.direction == "horizontal" then
-						return 15
-					elseif term.direction == "vertical" then
-						return vim.o.columns * 0.4
-					else
-						return 20
-					end
+	"akinsho/toggleterm.nvim",
+	version = "*",
+	config = function()
+		local toggleterm = require("toggleterm")
+		local Terminal = require("toggleterm.terminal").Terminal
+
+		-- =========================
+		-- ToggleTerm setup
+		-- =========================
+
+		toggleterm.setup({
+			open_mapping = nil,
+			start_in_insert = true,
+			insert_mappings = false,
+			terminal_mappings = false,
+			persist_size = true,
+			close_on_exit = false,
+			shade_terminals = false,
+
+			size = function(term)
+				if term.direction == "horizontal" then
+					return math.floor(vim.o.lines * 0.3)
+				elseif term.direction == "vertical" then
+					return math.floor(vim.o.columns * 0.35)
+				end
+			end,
+
+			float_opts = {
+				border = "rounded",
+				winblend = 25, -- glow illusion
+				width = function()
+					return math.floor(vim.o.columns * 0.5)
 				end,
-				hide_numbers = true,
-				start_in_insert = true,
-				shade_terminals = true,
-				direction = "float",
-				float_opts = {
-					border = "rounded",
-				},
-			})
+				height = function()
+					return math.floor(vim.o.lines * 0.5)
+				end,
+			},
+		})
 
-			local Terminal = require("toggleterm.terminal").Terminal
+		-- =========================
+		-- Retro CRT palette
+		-- =========================
 
-			local horizontal = Terminal:new({ direction = "horizontal", close_on_exit = true })
-			local vertical = Terminal:new({ direction = "vertical", close_on_exit = true })
-			local float = Terminal:new({ direction = "float", close_on_exit = true })
+		local crt_bg = "#0b0e14" -- NOT pure black → glow illusion
 
-			-- mappings: work in normal and terminal mode
-			local keymap = vim.keymap.set
-			keymap({ "n", "t" }, "<A-h>", function()
-				horizontal:toggle()
-			end, { desc = "Toggle horizontal terminal" })
-			keymap({ "n", "t" }, "<A-v>", function()
-				vertical:toggle()
-			end, { desc = "Toggle vertical terminal" })
-			keymap({ "n", "t" }, "<A-i>", function()
-				float:toggle()
-			end, { desc = "Toggle floating terminal" })
+		-- Floating: green phosphor
+		vim.api.nvim_set_hl(0, "ToggleTermFloat", {
+			fg = "#33ff33",
+			bg = crt_bg,
+		})
+		vim.api.nvim_set_hl(0, "ToggleTermFloatBorder", {
+			fg = "#55ff55", -- slightly brighter → glow edge
+			bg = crt_bg,
+		})
 
-			-- Terminal-mode: exit "insert" (terminal) to normal with Ctrl-x
-			keymap("t", "<C-x>", [[<C-\><C-n>]], { silent = true })
+		-- Horizontal: amber terminal
+		vim.api.nvim_set_hl(0, "ToggleTermHoriz", {
+			fg = "#ffb000",
+			bg = crt_bg,
+		})
 
-			-- Smart buffer delete function
-			local function smart_buffer_delete()
-				local bufnr = vim.api.nvim_get_current_buf()
-				local buftype = vim.api.nvim_buf_get_option(bufnr, "buftype")
+		-- Vertical: cyan hacker terminal
+		vim.api.nvim_set_hl(0, "ToggleTermVert", {
+			fg = "#00ffff",
+			bg = crt_bg,
+		})
 
-				-- If terminal, force delete
-				if buftype == "terminal" then
-					vim.cmd("bd!")
-					return
-				end
+		-- =========================
+		-- on_open hooks (PER WINDOW)
+		-- =========================
 
-				-- If it's the last buffer, just wipe it
-				if #vim.fn.getbufinfo({ buflisted = 1 }) == 1 then
-					vim.cmd("bd")
-					return
-				end
+		local function float_open(term)
+			vim.cmd("startinsert!")
+			vim.api.nvim_buf_set_option(
+				term.bufnr,
+				"winhighlight",
+				"Normal:ToggleTermFloat,FloatBorder:ToggleTermFloatBorder"
+			)
+		end
 
-				-- Switch to previous buffer and delete original
-				vim.cmd("bp")
-				vim.cmd("bd " .. bufnr)
+		local function horiz_open(term)
+			vim.cmd("startinsert!")
+			vim.api.nvim_buf_set_option(term.bufnr, "winhighlight", "Normal:ToggleTermHoriz")
+		end
+
+		local function vert_open(term)
+			vim.cmd("startinsert!")
+			vim.api.nvim_buf_set_option(term.bufnr, "winhighlight", "Normal:ToggleTermVert")
+		end
+
+		-- =========================
+		-- Terminal instances
+		-- =========================
+
+		local float_term = Terminal:new({
+			direction = "float",
+			hidden = true,
+			on_open = float_open,
+		})
+
+		local horiz_term = Terminal:new({
+			direction = "horizontal",
+			hidden = true,
+			on_open = horiz_open,
+		})
+
+		local vert_term = Terminal:new({
+			direction = "vertical",
+			hidden = true,
+			on_open = vert_open,
+		})
+
+		-- =========================
+		-- Keymaps
+		-- =========================
+
+		vim.keymap.set({ "n", "t" }, "<A-i>", function()
+			float_term:toggle()
+		end, { desc = "Toggle floating terminal" })
+
+		vim.keymap.set({ "n", "t" }, "<A-h>", function()
+			horiz_term:toggle()
+		end, { desc = "Toggle horizontal terminal" })
+
+		vim.keymap.set({ "n", "t" }, "<A-v>", function()
+			vert_term:toggle()
+		end, { desc = "Toggle vertical terminal" })
+
+		-- Kill ONLY the active terminal
+		vim.keymap.set("t", "<A-x>", function()
+			local buf = vim.api.nvim_get_current_buf()
+			if buf == float_term.bufnr then
+				float_term:shutdown()
+			elseif buf == horiz_term.bufnr then
+				horiz_term:shutdown()
+			elseif buf == vert_term.bufnr then
+				vert_term:shutdown()
 			end
+		end, { desc = "Kill active terminal" })
 
-			-- Map <leader>x in both normal and terminal mode
-			keymap("n", "<leader>x", smart_buffer_delete, { desc = "Delete buffer safely" })
-			keymap("t", "<leader>x", smart_buffer_delete, { desc = "Delete terminal buffer safely" })
-		end,
-	},
+		-- Exit terminal mode (keep it open)
+		vim.keymap.set("t", "<C-x>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
+	end,
 }

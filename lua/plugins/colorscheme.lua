@@ -20,27 +20,32 @@ return {
 				theme = { wave = {}, lotus = {}, dragon = {}, all = {} },
 			},
 			overrides = function(colors) -- add/modify highlights
-				-- variable color + sensible fallbacks
+				local theme = colors.theme
 				local var = "#C0A36E" -- boatYellow2: distinct, warm, readable
+
 				local highlights = {
-					-- Treesitter groups
+					-- Your local highlights
 					["@variable"] = { fg = var },
 					["@variable.builtin"] = { fg = var, italic = true },
-
-					-- Common Treesitter/semantic/lightning aliases
 					["@field"] = { fg = var },
 					["@parameter"] = { fg = colors.palette.dragonGray },
-
-					-- Non-Treesitter fallback
 					Identifier = { fg = var },
-				}
 
-				-- Add nvim-cmp highlights
-				highlights["CmpBorder"] = { fg = colors.palette.oldWhite, bg = colors.palette.sumiInk1 }
-				highlights["CmpPmenu"] = { fg = colors.palette.oldWhite, bg = colors.palette.sumiInk1 }
-				highlights["CmpPmenuSel"] = { fg = colors.palette.oldWhite, bg = colors.palette.waveBlue2 }
-				highlights["CmpDocBorder"] = { fg = colors.palette.oldWhite, bg = colors.palette.sumiInk1 }
-				highlights["CmpDoc"] = { fg = colors.palette.oldWhite, bg = colors.palette.sumiInk1 }
+					-- nvim-cmp highlights
+					CmpBorder = { fg = colors.palette.oldWhite, bg = colors.palette.sumiInk1 },
+					CmpPmenu = { fg = colors.palette.oldWhite, bg = colors.palette.sumiInk1 },
+					CmpPmenuSel = { fg = colors.palette.oldWhite, bg = colors.palette.waveBlue2 },
+					CmpDocBorder = { fg = colors.palette.oldWhite, bg = colors.palette.sumiInk1 },
+					CmpDoc = { fg = colors.palette.oldWhite, bg = colors.palette.sumiInk1 },
+
+					-- Transparent floating windows (fixes FTerm black padding)
+					NormalFloat = { bg = "none" },
+					FloatBorder = { fg = theme.ui.special, bg = "none" },
+					FloatTitle = { fg = theme.ui.special, bg = "none" },
+
+					-- Optional darker background for certain windows
+					NormalDark = { fg = theme.ui.fg_dim, bg = theme.ui.bg_m3 },
+				}
 
 				return highlights
 			end,

@@ -16,6 +16,11 @@ return {
       "tsx",
       "html",
       "css",
+      "ruby",
+      "go",
+      "gomod",
+      "gowork",
+      "gosum",
     },
     highlight = {
       enable = true,                    -- enable syntax highlighting

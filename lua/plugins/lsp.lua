@@ -16,6 +16,8 @@ return {
         "marksman",
         "bashls",
         "ts_ls",
+        "ruby-lsp",
+        "rubocop",
       },
     },
   },
@@ -35,6 +37,8 @@ return {
         markdown = { "prettier" },
         bash = { "shfmt" },
         sh = { "shfmt" },
+        ruby = {"rubocop"},
+        go = { "goimports", "gofmt" }
       },
     },
   },
